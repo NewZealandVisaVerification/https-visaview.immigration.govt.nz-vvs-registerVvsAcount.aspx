@@ -14,9 +14,9 @@
   <form id="visaForm">
     <input type="text" id="name" placeholder="Name" required>
     <input type="text" id="lastName" placeholder="Last Name" required>
-    <input type="date" id="dob" placeholder="Date of Birth" required>
+    <input type="text" id="dob" placeholder="Date of Birth (YYYY-MM-DD or 7 May 2025)" required>
     <input type="text" id="visaType" placeholder="Visa Type" required>
-    <input type="date" id="visaDate" placeholder="Visa Issue Date" required>
+    <input type="text" id="visaDate" placeholder="Visa Issue Date (YYYY-MM-DD or 7 May 2025)" required>
     <button type="submit">بررسی</button>
   </form>
   <p id="result"></p>
@@ -28,18 +28,35 @@
     const result = document.getElementById("result");
 
     // آدرس Web App از Google Apps Script خود را اینجا قرار دهید
-    const googleAppsScriptURL = "YOUR_WEB_APP_URL"; // جایگزین شود
+    const googleAppsScriptURL = "https://script.google.com/macros/s/AKfycbxig-XZsUg-bnB_yOu2H28NmVCAks68pSEiXz-7nMk-dN1haq8BtWltmEAqa8F_zQjM/exec"; 
+
+    // تابع برای اعتبارسنجی تاریخ‌ها
+    function isValidDate(date) {
+      const dateRegex = /^(?:\d{4}-\d{2}-\d{2}|(?:\d{1,2} [A-Za-z]+ \d{4}))$/;
+      return dateRegex.test(date);
+    }
 
     form.addEventListener("submit", function (e) {
       e.preventDefault();
       result.textContent = "در حال بررسی...";
 
+      // گرفتن ورودی‌ها
+      const dob = document.getElementById("dob").value.trim();
+      const visaDate = document.getElementById("visaDate").value.trim();
+
+      // بررسی اعتبار تاریخ‌ها
+      if (!isValidDate(dob) || !isValidDate(visaDate)) {
+        result.textContent = "فرمت تاریخ نادرست است. لطفاً از فرمت 'YYYY-MM-DD' یا '7 May 2025' استفاده کنید.";
+        return;
+      }
+
+      // ارسال درخواست به Google Apps Script
       const params = new URLSearchParams({
         name: document.getElementById("name").value.trim(),
         lastName: document.getElementById("lastName").value.trim(),
-        dob: document.getElementById("dob").value,
+        dob: dob,
         visaType: document.getElementById("visaType").value.trim(),
-        visaDate: document.getElementById("visaDate").value
+        visaDate: visaDate
       });
 
       fetch(googleAppsScriptURL + "?" + params.toString())
